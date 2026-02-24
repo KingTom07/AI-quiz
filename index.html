@@ -6,524 +6,378 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Step8up AI Quiz</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#ffa500',
+                        'brand-dark': '#e69500',
+                        dark: { 900: '#0a0a0a', 800: '#111', 700: '#1a1a1a', 600: '#222' }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+        * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; overflow: hidden; }
+
+        /* Animated grid background */
+        .tech-grid {
+            background-image:
+                linear-gradient(rgba(255,165,0,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,165,0,0.06) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 40px; }
         }
 
-        body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #1a1a1a;
-            color: #fff;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .banner {
-            width: 100%;
-            display: block;
-            background: #ffa500;
-        }
-
-        .banner img {
-            height: 80px;
-            width: auto;
-            display: block;
-            margin: 0 auto;
-            padding: 8px 0;
-        }
-
-        /* ---- Screens ---- */
-        .screen {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        /* ---- Start Screen ---- */
-        #start-screen {
-            background: #ffa500;
-        }
-
-        .start-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .start-logo {
-            max-width: 340px;
-            width: 60%;
-            margin-bottom: 50px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
-        }
-
-        .start-content .tap-text {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            opacity: 0.85;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.55; }
-            50% { opacity: 1; }
-        }
-
-        /* ---- Quiz Screen ---- */
-        #quiz-screen {
-            background: #ffa500;
-        }
-
-        .quiz-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 30px 20px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(0,0,0,0.15);
-            border-radius: 3px;
-            margin-bottom: 8px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #1a1a1a;
-            border-radius: 4px;
-            transition: width 0.4s ease;
-        }
-
-        .question-counter {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-            text-align: right;
-        }
-
-        .question-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            line-height: 1.3;
-            margin-bottom: 16px;
-            color: #1a1a1a;
-        }
-
-        .answers {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            flex: 1;
-        }
-
-        .answer-btn {
-            display: flex;
-            align-items: center;
-            background: rgba(255,255,255,0.95);
-            border: 2px solid rgba(255,255,255,0.95);
-            border-radius: 12px;
-            padding: 14px 18px;
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s, transform 0.15s;
-        }
-
-        .answer-btn:hover {
-            border-color: #1a1a1a;
-            background: #fff;
-        }
-
-        .answer-btn:active {
-            transform: scale(0.98);
-        }
-
-        .answer-btn .letter {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            background: #ffa500;
-            font-size: 1rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-right: 14px;
-            flex-shrink: 0;
-            transition: background 0.2s, color 0.2s;
-        }
-
-        .answer-btn .answer-text {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1a1a1a;
-            line-height: 1.3;
-            transition: color 0.2s;
-        }
-
-        /* Correct */
-        .answer-btn.correct {
-            border-color: #2ecc71;
-            background: #2ecc71;
-        }
-
-        .answer-btn.correct .letter {
-            background: #fff;
-            color: #2ecc71;
-        }
-
-        .answer-btn.correct .answer-text {
-            color: #fff;
-        }
-
-        /* Wrong */
-        .answer-btn.wrong {
-            border-color: #e74c3c;
-            background: #e74c3c;
-        }
-
-        .answer-btn.wrong .letter {
-            background: #fff;
-            color: #e74c3c;
-        }
-
-        .answer-btn.wrong .answer-text {
-            color: #fff;
-        }
-
-        /* Dimmed (other options after answer) */
-        .answer-btn.dimmed {
-            opacity: 0.4;
-        }
-
-        .answer-btn.disabled {
-            pointer-events: none;
-        }
-
-        /* ---- Result Screen ---- */
-        #result-screen {
-            background: #ffa500;
-        }
-
-        .result-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .score-circle {
-            width: 170px;
-            height: 170px;
+        /* Floating particles */
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255,165,0,0.3);
             border-radius: 50%;
-            border: 8px solid #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
+            animation: float linear infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
         }
 
-        .score-circle .percentage {
-            font-size: 3rem;
-            font-weight: 800;
-            color: #1a1a1a;
+        /* Glow pulse */
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,165,0,0.3), 0 0 40px rgba(255,165,0,0.1); }
+            50% { box-shadow: 0 0 30px rgba(255,165,0,0.5), 0 0 60px rgba(255,165,0,0.2); }
+        }
+        .glow-pulse { animation: glowPulse 2s ease-in-out infinite; }
+
+        /* Progress glow */
+        .progress-glow {
+            box-shadow: 0 0 8px rgba(255,165,0,0.6), 0 0 16px rgba(255,165,0,0.3);
         }
 
-        .score-circle .label {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: rgba(0,0,0,0.5);
-            margin-top: -4px;
+        /* Slide in */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up { animation: slideUp 0.4s ease-out forwards; }
+
+        /* Fade */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+
+        /* Scan line */
+        .scan-line::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,165,0,0.4), transparent);
+            animation: scan 3s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
         }
 
-        .result-message {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 8px;
+        /* Tap pulse on start */
+        @keyframes tapPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
         }
+        .tap-pulse { animation: tapPulse 2s ease-in-out infinite; }
 
-        .result-detail {
-            font-size: 1rem;
-            font-weight: 600;
-            color: rgba(0,0,0,0.6);
-            margin-bottom: 30px;
-        }
-
-        .btn-restart {
-            background: #1a1a1a;
-            color: #ffa500;
-            border: none;
-            padding: 16px 60px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: transform 0.15s, background 0.15s;
-        }
-
-        .btn-restart:hover {
-            background: #333;
-        }
-
-        .btn-restart:active {
-            transform: scale(0.95);
-            background: #333;
-        }
+        /* Count up animation handled in JS */
     </style>
 </head>
-<body>
+<body class="bg-dark-900">
+    <div id="root"></div>
 
-    <!-- START SCREEN -->
-    <div id="start-screen" class="screen active">
-        <div class="start-content" onclick="startQuiz()">
-            <img src="orange banner.jpg" alt="Step8up" class="start-logo">
-            <div class="tap-text">Tap to Start</div>
-        </div>
-    </div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
 
-    <!-- QUIZ SCREEN -->
-    <div id="quiz-screen" class="screen">
-        <div class="quiz-content">
-            <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-            <div class="question-counter" id="question-counter"></div>
-            <div class="question-text" id="question-text"></div>
-            <div class="answers" id="answers"></div>
-        </div>
-    </div>
-
-    <!-- RESULT SCREEN -->
-    <div id="result-screen" class="screen">
-        <div class="result-content">
-            <div class="score-circle">
-                <div class="percentage" id="score-percentage">0%</div>
-                <div class="label">Score</div>
-            </div>
-            <div class="result-message" id="result-message"></div>
-            <div class="result-detail" id="result-detail"></div>
-            <button class="btn-restart" onclick="restartQuiz()">Try Again</button>
-        </div>
-    </div>
-
-    <script>
         const questions = [
             {
                 question: "Which event is considered the starting point of AI as a field?",
-                answers: [
-                    "Asilomar principles",
-                    "Dartmouth Conference (1956)",
-                    "The invention of the internet",
-                    "The first smartphone"
-                ],
+                answers: ["Asilomar principles", "Dartmouth Conference (1956)", "The invention of the internet", "The first smartphone"],
                 correct: 1
             },
             {
-                question: "What is an \"AI winter\"?",
-                answers: [
-                    "AI only works in cold weather",
-                    "A period when AI funding and interest dropped",
-                    "When robots took over jobs",
-                    "A cybersecurity event"
-                ],
+                question: 'What is an "AI winter"?',
+                answers: ["AI only works in cold weather", "A period when AI funding and interest dropped", "When robots took over jobs", "A cybersecurity event"],
                 correct: 1
             },
             {
                 question: "Which is an example of Narrow AI (Weak AI)?",
-                answers: [
-                    "A system that can do any human task",
-                    "A virtual assistant (like Siri/Alexa)",
-                    "A robot with human-level intelligence",
-                    "A fully conscious machine"
-                ],
+                answers: ["A system that can do any human task", "A virtual assistant (like Siri/Alexa)", "A robot with human-level intelligence", "A fully conscious machine"],
                 correct: 1
             },
             {
                 question: "Which is a key ethical concern of AI?",
-                answers: [
-                    "AI never makes mistakes",
-                    "Bias, unfairness, and discrimination",
-                    "AI doesn't need data",
-                    "AI always follows the law"
-                ],
+                answers: ["AI never makes mistakes", "Bias, unfairness, and discrimination", "AI doesn't need data", "AI always follows the law"],
                 correct: 1
             },
             {
                 question: "Which is one of the UK AI principles?",
-                answers: [
-                    "Speed and efficiency",
-                    "Transparency and explainability",
-                    "Profit maximisation",
-                    "Replacing all human workers"
-                ],
+                answers: ["Speed and efficiency", "Transparency and explainability", "Profit maximisation", "Replacing all human workers"],
                 correct: 1
             },
             {
-                question: "What does \"machine learning\" mean?",
-                answers: [
-                    "A machine that is programmed with every possible answer",
-                    "A system that learns and improves from data without being explicitly programmed",
-                    "A robot that can walk and talk",
-                    "Software that never needs updating"
-                ],
+                question: 'What does "machine learning" mean?',
+                answers: ["A machine programmed with every possible answer", "A system that learns and improves from data without being explicitly programmed", "A robot that can walk and talk", "Software that never needs updating"],
                 correct: 1
             },
             {
-                question: "What is a \"neural network\" inspired by?",
-                answers: [
-                    "The internet",
-                    "The human brain",
-                    "A spider's web",
-                    "A computer's hard drive"
-                ],
+                question: 'What is a "neural network" inspired by?',
+                answers: ["The internet", "The human brain", "A spider's web", "A computer's hard drive"],
                 correct: 1
             },
             {
-                question: "What is \"natural language processing\" (NLP) used for?",
-                answers: [
-                    "Processing images and videos",
-                    "Understanding and generating human language",
-                    "Controlling robots in factories",
-                    "Mining cryptocurrency"
-                ],
+                question: 'What is "natural language processing" (NLP) used for?',
+                answers: ["Processing images and videos", "Understanding and generating human language", "Controlling robots in factories", "Mining cryptocurrency"],
                 correct: 1
             }
         ];
 
         const letters = ["A", "B", "C", "D"];
-        let currentQuestion = 0;
-        let score = 0;
-        let answered = false;
-        let autoTimer = null;
 
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+        // Floating particles component
+        function Particles() {
+            const particles = Array.from({ length: 20 }, (_, i) => ({
+                id: i,
+                left: Math.random() * 100,
+                delay: Math.random() * 15,
+                duration: 8 + Math.random() * 12,
+                size: 2 + Math.random() * 4,
+            }));
+            return (
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    {particles.map(p => (
+                        <div key={p.id} className="particle"
+                            style={{
+                                left: `${p.left}%`,
+                                width: `${p.size}px`,
+                                height: `${p.size}px`,
+                                animationDelay: `${p.delay}s`,
+                                animationDuration: `${p.duration}s`,
+                            }}
+                        />
+                    ))}
+                </div>
+            );
         }
 
-        function startQuiz() {
-            if (autoTimer) clearTimeout(autoTimer);
-            currentQuestion = 0;
-            score = 0;
-            answered = false;
-            showScreen('quiz-screen');
-            loadQuestion();
+        // Start screen
+        function StartScreen({ onStart }) {
+            return (
+                <div className="h-screen flex flex-col items-center justify-center bg-brand relative cursor-pointer" onClick={onStart}>
+                    <img src="orange banner.jpg" alt="Step8up"
+                        className="w-[55%] max-w-[300px] rounded-2xl shadow-2xl mb-12 fade-in" />
+                    <div className="tap-pulse text-dark-900 text-2xl font-semibold tracking-wide">
+                        Tap to Start
+                    </div>
+                </div>
+            );
         }
 
-        function loadQuestion() {
-            answered = false;
-            const q = questions[currentQuestion];
-            const total = questions.length;
+        // Quiz screen
+        function QuizScreen({ question, questionIndex, total, selectedAnswer, onSelect }) {
+            const progress = ((selectedAnswer !== null ? questionIndex + 1 : questionIndex) / total) * 100;
 
-            document.getElementById('progress-fill').style.width =
-                ((currentQuestion) / total * 100) + '%';
-            document.getElementById('question-counter').textContent =
-                `Question ${currentQuestion + 1} of ${total}`;
-            document.getElementById('question-text').textContent = q.question;
+            return (
+                <div className="h-screen flex flex-col bg-dark-900 tech-grid relative scan-line overflow-hidden">
+                    <Particles />
+                    <div className="relative z-10 flex flex-col flex-1 px-6 pt-5 pb-4">
+                        {/* Progress */}
+                        <div className="w-full h-1.5 bg-dark-600 rounded-full mb-2 overflow-hidden">
+                            <div className="h-full bg-brand rounded-full progress-glow transition-all duration-500 ease-out"
+                                style={{ width: `${progress}%` }} />
+                        </div>
 
-            const answersDiv = document.getElementById('answers');
-            answersDiv.innerHTML = '';
+                        {/* Counter */}
+                        <div className="text-right font-mono text-xs text-brand/60 mb-4 tracking-widest">
+                            [{String(questionIndex + 1).padStart(2, '0')}/{String(total).padStart(2, '0')}]
+                        </div>
 
-            q.answers.forEach((ans, i) => {
-                const btn = document.createElement('div');
-                btn.className = 'answer-btn';
-                btn.innerHTML = `
-                    <div class="letter">${letters[i]}</div>
-                    <div class="answer-text">${ans}</div>
-                `;
-                btn.onclick = function() { selectAnswer(i, btn); };
-                answersDiv.appendChild(btn);
-            });
+                        {/* Question */}
+                        <div key={questionIndex} className="slide-up mb-5">
+                            <h2 className="text-white text-lg font-bold leading-snug">
+                                {question.question}
+                            </h2>
+                        </div>
 
+                        {/* Answers */}
+                        <div className="flex flex-col gap-3 flex-1">
+                            {question.answers.map((ans, i) => {
+                                let cardClass = "backdrop-blur-md bg-white/10 border border-white/10 hover:border-brand/60 hover:bg-white/15";
+                                let letterClass = "bg-brand/20 text-brand";
+                                let textClass = "text-white/90";
+
+                                if (selectedAnswer !== null) {
+                                    if (i === question.correct) {
+                                        cardClass = "bg-emerald-500/90 border-emerald-400";
+                                        letterClass = "bg-white text-emerald-600";
+                                        textClass = "text-white font-bold";
+                                    } else if (i === selectedAnswer && selectedAnswer !== question.correct) {
+                                        cardClass = "bg-red-500/90 border-red-400";
+                                        letterClass = "bg-white text-red-600";
+                                        textClass = "text-white font-bold";
+                                    } else {
+                                        cardClass = "bg-white/5 border-white/5 opacity-30";
+                                        letterClass = "bg-white/10 text-white/30";
+                                        textClass = "text-white/30";
+                                    }
+                                }
+
+                                return (
+                                    <div key={i}
+                                        className={`slide-up flex items-center rounded-xl px-4 py-3 cursor-pointer border-2 transition-all duration-200 active:scale-[0.98] ${cardClass} ${selectedAnswer !== null ? 'pointer-events-none' : ''}`}
+                                        style={{ animationDelay: `${i * 0.08}s` }}
+                                        onClick={() => onSelect(i)}
+                                    >
+                                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-mono font-bold text-sm mr-3 flex-shrink-0 transition-all duration-200 ${letterClass}`}>
+                                            {letters[i]}
+                                        </div>
+                                        <span className={`text-sm font-semibold leading-snug transition-all duration-200 ${textClass}`}>
+                                            {ans}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
         }
 
-        function selectAnswer(index, selectedBtn) {
-            if (answered) return;
-            answered = true;
+        // Animated counter
+        function AnimatedCounter({ target, duration = 1500 }) {
+            const [count, setCount] = useState(0);
+            useEffect(() => {
+                let start = 0;
+                const startTime = Date.now();
+                const tick = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    setCount(Math.round(eased * target));
+                    if (progress < 1) requestAnimationFrame(tick);
+                };
+                requestAnimationFrame(tick);
+            }, [target]);
+            return <span>{count}%</span>;
+        }
 
-            const q = questions[currentQuestion];
-            const allBtns = document.querySelectorAll('.answer-btn');
+        // Result screen
+        function ResultScreen({ score, total, onRestart }) {
+            const pct = Math.round((score / total) * 100);
+            let msg, msgColor;
+            if (pct === 100) { msg = 'Perfect Score!'; msgColor = 'text-emerald-400'; }
+            else if (pct >= 80) { msg = 'Excellent Work!'; msgColor = 'text-emerald-400'; }
+            else if (pct >= 60) { msg = 'Good Effort!'; msgColor = 'text-brand'; }
+            else if (pct >= 40) { msg = 'Keep Learning!'; msgColor = 'text-brand'; }
+            else { msg = 'Better Luck Next Time!'; msgColor = 'text-red-400'; }
 
-            allBtns.forEach((btn, i) => {
-                btn.classList.add('disabled');
-                if (i === q.correct) {
-                    btn.classList.add('correct');
-                } else if (i === index && index !== q.correct) {
-                    btn.classList.add('wrong');
-                } else {
-                    btn.classList.add('dimmed');
+            return (
+                <div className="h-screen flex flex-col bg-dark-900 tech-grid relative overflow-hidden">
+                    <Particles />
+                    <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-8 text-center">
+                        <div className="fade-in">
+                            <div className="w-44 h-44 rounded-full border-4 border-brand flex flex-col items-center justify-center mb-6 glow-pulse">
+                                <div className="font-mono text-5xl font-extrabold text-brand">
+                                    <AnimatedCounter target={pct} />
+                                </div>
+                                <div className="text-white/40 text-xs font-mono tracking-widest mt-1">SCORE</div>
+                            </div>
+
+                            <h2 className={`text-2xl font-bold mb-2 ${msgColor}`}>{msg}</h2>
+                            <p className="text-white/50 font-mono text-sm mb-10">
+                                {score}/{total} correct answers
+                            </p>
+
+                            <button onClick={onRestart}
+                                className="bg-brand text-dark-900 font-bold text-lg px-12 py-4 rounded-xl hover:bg-brand-dark active:scale-95 transition-all duration-200 shadow-lg shadow-brand/30">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App
+        function App() {
+            const [screen, setScreen] = useState('start');
+            const [questionIndex, setQuestionIndex] = useState(0);
+            const [score, setScore] = useState(0);
+            const [selectedAnswer, setSelectedAnswer] = useState(null);
+            const timerRef = useRef(null);
+
+            const handleStart = useCallback(() => {
+                setScreen('quiz');
+                setQuestionIndex(0);
+                setScore(0);
+                setSelectedAnswer(null);
+            }, []);
+
+            const handleSelect = useCallback((index) => {
+                if (selectedAnswer !== null) return;
+                setSelectedAnswer(index);
+
+                if (index === questions[questionIndex].correct) {
+                    setScore(s => s + 1);
                 }
-            });
 
-            if (index === q.correct) score++;
+                timerRef.current = setTimeout(() => {
+                    if (questionIndex + 1 >= questions.length) {
+                        setScreen('result');
+                    } else {
+                        setQuestionIndex(qi => qi + 1);
+                        setSelectedAnswer(null);
+                    }
+                }, 2000);
+            }, [selectedAnswer, questionIndex]);
 
-            document.getElementById('progress-fill').style.width =
-                ((currentQuestion + 1) / questions.length * 100) + '%';
+            const handleRestart = useCallback(() => {
+                if (timerRef.current) clearTimeout(timerRef.current);
+                handleStart();
+            }, [handleStart]);
 
-            autoTimer = setTimeout(() => {
-                nextQuestion();
-            }, 2000);
+            if (screen === 'start') return <StartScreen onStart={handleStart} />;
+            if (screen === 'result') return <ResultScreen score={score} total={questions.length} onRestart={handleRestart} />;
+            return (
+                <QuizScreen
+                    question={questions[questionIndex]}
+                    questionIndex={questionIndex}
+                    total={questions.length}
+                    selectedAnswer={selectedAnswer}
+                    onSelect={handleSelect}
+                />
+            );
         }
 
-        function nextQuestion() {
-            currentQuestion++;
-            if (currentQuestion >= questions.length) {
-                showResults();
-            } else {
-                loadQuestion();
-            }
-        }
-
-        function showResults() {
-            const pct = Math.round((score / questions.length) * 100);
-
-            document.getElementById('score-percentage').textContent = pct + '%';
-            document.getElementById('result-detail').textContent =
-                `You got ${score} out of ${questions.length} correct.`;
-
-            let msg;
-            if (pct === 100) msg = 'Perfect Score!';
-            else if (pct >= 80) msg = 'Excellent Work!';
-            else if (pct >= 60) msg = 'Good Effort!';
-            else if (pct >= 40) msg = 'Keep Learning!';
-            else msg = 'Better Luck Next Time!';
-
-            const msgEl = document.getElementById('result-message');
-            msgEl.textContent = msg;
-            msgEl.style.color = pct >= 60 ? '#1a6b38' : pct >= 40 ? '#1a1a1a' : '#8b1a1a';
-
-            showScreen('result-screen');
-        }
-
-        function restartQuiz() {
-            startQuiz();
-        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
