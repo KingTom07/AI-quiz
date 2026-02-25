@@ -240,103 +240,30 @@
             );
         }
 
-        const ZOHO_FORM_URL = "https://forms.step8up.co.uk/academyste1/form/GeneralInterestForm/formperma/g-Z-rOhDm9mlurdW9A4QbLuB";
+        const ZOHO_FORM_URL = "https://forms.step8up.co.uk/academyste1/form/GeneralInterestForm/formperma/g-Z-rOhDm9mlurdW9A4QbLuB23RVoU-JJgslVNGpf-w";
 
-        // Sign-in form screen
+        // Sign-in form screen (embedded Zoho form)
         function SignInScreen({ onSubmit }) {
-            const [form, setForm] = useState({ firstName: '', lastName: '', email: '', company: '', phone: '' });
-            const [submitting, setSubmitting] = useState(false);
-
-            const handleChange = (field, value) => {
-                setForm(prev => ({ ...prev, [field]: value }));
-            };
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                if (!form.firstName.trim() || !form.email.trim()) return;
-                setSubmitting(true);
-
-                // Submit to Zoho via hidden iframe to avoid CORS
-                try {
-                    const formData = new URLSearchParams();
-                    formData.append('SingleLine', form.firstName);
-                    formData.append('SingleLine1', form.lastName);
-                    formData.append('Email', form.email);
-                    formData.append('SingleLine2', form.company);
-                    formData.append('PhoneNumber_countrycode', form.phone);
-
-                    const iframe = document.createElement('iframe');
-                    iframe.name = 'zoho_submit';
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-
-                    const hiddenForm = document.createElement('form');
-                    hiddenForm.method = 'POST';
-                    hiddenForm.action = ZOHO_FORM_URL;
-                    hiddenForm.target = 'zoho_submit';
-
-                    for (const [key, val] of formData.entries()) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = key;
-                        input.value = val;
-                        hiddenForm.appendChild(input);
-                    }
-
-                    document.body.appendChild(hiddenForm);
-                    hiddenForm.submit();
-
-                    setTimeout(() => {
-                        document.body.removeChild(hiddenForm);
-                        document.body.removeChild(iframe);
-                    }, 2000);
-                } catch (err) {
-                    // Continue even if submission fails
-                }
-
-                setTimeout(() => onSubmit(form), 500);
-            };
-
-            const inputClass = "w-full bg-white/10 border border-white/10 rounded-lg px-4 py-3 text-white text-sm font-medium placeholder-white/30 focus:outline-none focus:border-brand/60 focus:bg-white/15 transition-all duration-200";
-
             return (
                 <div className="h-screen flex flex-col bg-dark-900 tech-grid relative scan-line overflow-hidden">
                     <Particles />
-                    <div className="relative z-10 flex flex-col items-center justify-center flex-1 px-8">
-                        <div className="fade-in w-full max-w-sm">
-                            <h2 className="text-brand text-2xl font-bold mb-1 text-center">Sign In</h2>
-                            <p className="text-white/40 font-mono text-xs mb-6 text-center tracking-widest">[ REGISTER TO BEGIN ]</p>
+                    <div className="relative z-10 flex flex-col flex-1 px-6 pt-4 pb-4">
+                        <h2 className="text-brand text-2xl font-bold mb-1 text-center">Sign In</h2>
+                        <p className="text-white/40 font-mono text-xs mb-3 text-center tracking-widest">[ REGISTER TO BEGIN ]</p>
 
-                            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-                                <div className="flex gap-3">
-                                    <input type="text" placeholder="First Name *" required
-                                        className={inputClass}
-                                        value={form.firstName}
-                                        onChange={e => handleChange('firstName', e.target.value)} />
-                                    <input type="text" placeholder="Last Name"
-                                        className={inputClass}
-                                        value={form.lastName}
-                                        onChange={e => handleChange('lastName', e.target.value)} />
-                                </div>
-                                <input type="email" placeholder="Email *" required
-                                    className={inputClass}
-                                    value={form.email}
-                                    onChange={e => handleChange('email', e.target.value)} />
-                                <input type="text" placeholder="Company"
-                                    className={inputClass}
-                                    value={form.company}
-                                    onChange={e => handleChange('company', e.target.value)} />
-                                <input type="tel" placeholder="Phone"
-                                    className={inputClass}
-                                    value={form.phone}
-                                    onChange={e => handleChange('phone', e.target.value)} />
-
-                                <button type="submit" disabled={submitting}
-                                    className="mt-2 bg-brand text-dark-900 font-bold text-base py-3 rounded-xl hover:bg-brand-dark active:scale-95 transition-all duration-200 shadow-lg shadow-brand/30 disabled:opacity-50">
-                                    {submitting ? 'Submitting...' : 'Start Quiz'}
-                                </button>
-                            </form>
+                        <div className="flex-1 rounded-xl overflow-hidden border border-white/10 bg-white">
+                            <iframe
+                                src={ZOHO_FORM_URL}
+                                className="w-full h-full border-0"
+                                allow="geolocation; microphone; camera"
+                                style={{ minHeight: '100%' }}
+                            />
                         </div>
+
+                        <button onClick={onSubmit}
+                            className="mt-3 bg-brand text-dark-900 font-bold text-base py-3 rounded-xl hover:bg-brand-dark active:scale-95 transition-all duration-200 shadow-lg shadow-brand/30">
+                            Continue to Quiz
+                        </button>
                     </div>
                 </div>
             );
