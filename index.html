@@ -419,8 +419,11 @@
 
             const handleRestart = useCallback(() => {
                 if (timerRef.current) clearTimeout(timerRef.current);
-                handleStart();
-            }, [handleStart]);
+                setScreen('start');
+                setQuestionIndex(0);
+                setScore(0);
+                setSelectedAnswer(null);
+            }, []);
 
             if (screen === 'start') return <StartScreen onStart={handleStart} />;
             if (screen === 'result') return <ResultScreen score={score} total={questions.length} onRestart={handleRestart} />;
